@@ -1,32 +1,31 @@
 export const mainLogic = () => {
   const apiKey = process.env.API_KEY;
   let location = "stockholm";
+  let isLoading = false;
   const BASE_URL =
     "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/";
 
   const weatherContainer = document.getElementById("weather-container");
-
   const currentWeatherTemplate = document.getElementById(
     "current-weather-template"
   );
+  const searchInput = document.getElementById("search-input");
+  const locationForm = document.getElementById("location-form");
   const cloneCurrentWeatherTemplate =
     currentWeatherTemplate.content.cloneNode(true);
   weatherContainer.appendChild(cloneCurrentWeatherTemplate);
 
-  const searchButton = document.getElementById("search-button");
-  searchButton.addEventListener("click", (e) => {
-    handleSearchButton(e);
-  });
-
   const fetchData = async () => {
     const weatherUrl = `${BASE_URL}/${location}/?key=${apiKey}`;
     try {
+      isLoading = true;
       const response = await fetch(weatherUrl);
       if (!response.ok) {
-        throw new Error("failed to fetch data");
+        throw new Error("Failed to fetch data");
       }
       const data = await response.json();
       console.log("raw data from API", data);
+      isLoading = false
       return data;
     } catch (error) {
       console.error("Error fetching data:", error.message);
@@ -34,7 +33,11 @@ export const mainLogic = () => {
   };
 
   const processData = async () => {
+    isLoading = true
     const data = await fetchData();
+    if (!data) {
+      throw new Error("Failed to fetch data");
+    }
 
     console.log(
       data.address,
@@ -42,7 +45,7 @@ export const mainLogic = () => {
       data.currentConditions.uvindex,
       data.currentConditions.conditions
     );
-
+    isLoading = false
     return {
       location: data.address,
       temp: data.currentConditions.temp,
@@ -81,19 +84,20 @@ export const mainLogic = () => {
     low.textContent = data.low;
   };
 
-  const handleSearchButton = (e) => {
+  const handleSearchButton = async (e) => {
     e.preventDefault();
+    await processData();
 
-    const searchInput = document.getElementById("search-input");
     const value = searchInput.value;
     console.log("form value", value);
     setLocation(value);
-    processData();
-    displayWeatherData();
+    await displayWeatherData();
     clearSearchInput();
   };
 
-  processData();
+  locationForm.addEventListener("submit", (e) => {
+    handleSearchButton(e);
+  });
+
   displayWeatherData();
-  return { processData };
 };
