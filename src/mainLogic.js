@@ -103,7 +103,7 @@ export const mainLogic = () => {
     console.log("form value", value);
     setLocation(value);
     await displayWeatherData();
-    await displayForecastData()
+    await displayForecastData();
     clearSearchInput();
   };
 
@@ -116,7 +116,7 @@ export const mainLogic = () => {
     const cloneForecastTemplate = forecastTemplate.content.cloneNode(true);
     weatherContainer.appendChild(cloneForecastTemplate);
 
-    const data = await processData();
+    // const data = await processData();
     const todayEpochTime = data.date;
     const todayDate = fromUnixTime(todayEpochTime);
     const formattedTodayDate = format(todayDate, "yyyy-MM-dd");
@@ -137,13 +137,12 @@ export const mainLogic = () => {
 
         dailyTempsList[date] = { minTemp, maxTemp };
         console.log(dailyTempsList);
-      //   const minTempSpan = document.getElementById("min-temp");
-      // const maxTempSpan = document.getElementById("max-temp");
-      // minTempSpan.innerHTML = minTemp;
-      // maxTempSpan.textContent = maxTemp;
+
+        const minTempSpan = document.getElementById("min-temp");
+        const maxTempSpan = document.getElementById("max-temp");
+        minTempSpan.textContent = minTemp;
+        maxTempSpan.textContent = maxTemp;
       }
-
-
     });
 
     for (const date in dailyTempsList) {
@@ -151,24 +150,16 @@ export const mainLogic = () => {
         weekday: "short",
       });
       console.log(weekdayName);
+      console.log(date);
       const minT = dailyTempsList[date].minTemp;
       const maxT = dailyTempsList[date].maxTemp;
       console.log(minT, maxT);
-      const minTempSpan = document.getElementById("min-temp");
-      const maxTempSpan = document.getElementById("max-temp");
-      minTempSpan.textContent = minT;
-      maxTempSpan.textContent = maxT;
 
-      const forecastDaySpan = document.getElementById("forecast-day")
-      forecastDaySpan.textContent = weekdayName
-      }
+      const forecastDaySpan = document.getElementById("forecast-day");
+      forecastDaySpan.textContent = weekdayName;
     }
-
-    displayWeatherData();
-    displayForecastData();
-
   };
-  // displayWeatherData();
 
-  // return { fetchData, processData };
-
+  displayWeatherData();
+  displayForecastData();
+};
